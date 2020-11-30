@@ -70,7 +70,7 @@ class B2_VGG(nn.Module):
         conv5_2.add_module('relu5_3_2', nn.ReLU())
         self.conv5_2 = conv5_2
 
-        pre_train = torch.load('./Snapshots/pre_trained/vgg16-397923af.pth')
+        pre_train = torch.load('./snapshots/pre_trained/vgg16-397923af.pth')
         self._initialize_weights(pre_train)
 
     def forward(self, x):

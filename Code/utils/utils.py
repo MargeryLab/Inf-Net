@@ -58,6 +58,6 @@ def CalParams(model, input_tensor):
     :param input_tensor:
     :return:
     """
-    flops, params = profile(model, inputs=(input_tensor,))
+    flops, params = profile(model, inputs=(input_tensor,))  #计算复杂度、参数量，计算FLOPs实际上是计算模型中乘法运算和加法运算的次数。
     flops, params = clever_format([flops, params], "%.3f")
     print('#'*20, '\n[Statistics Information]\nFLOPs: {}\nParams: {}\n'.format(flops, params), '#'*20)

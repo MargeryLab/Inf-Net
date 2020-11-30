@@ -19,7 +19,7 @@ class COVIDDataset(data.Dataset):
         self.images = [image_root + f for f in os.listdir(image_root) if f.endswith('.jpg') or f.endswith('.png')]
         self.gts = [gt_root + f for f in os.listdir(gt_root) if f.endswith('.png')]
 
-        self.images = sorted(self.images)
+        self.images = sorted(self.images)   #图片完整路径
         self.gts = sorted(self.gts)
 
         if len(edge_root) != 0:
@@ -30,11 +30,11 @@ class COVIDDataset(data.Dataset):
             self.edge_flage = False
 
         self.filter_files()
-        self.size = len(self.images)
-
+        self.size = len(self.images)    #50
+        #torchvision.transforms.Compose()类。这个类的主要作用是串联多个图片变换的操作
         self.img_transform = transforms.Compose([
             transforms.Resize((self.trainsize, self.trainsize)),
-            transforms.ToTensor(),
+            transforms.ToTensor(),  #Convert a ``PIL Image`` or ``numpy.ndarray`` to tensor.
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
         self.gt_transform = transforms.Compose([
             transforms.Resize((self.trainsize, self.trainsize)),

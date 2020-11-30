@@ -63,6 +63,6 @@ def inference(num_classes, input_channels, snapshot_dir, save_path):
 if __name__ == "__main__":
     inference(num_classes=3,
               input_channels=6,
-              snapshot_dir='./Snapshots/save_weights/Semi-Inf-Net_UNet/unet_model_200.pkl',
+              snapshot_dir='./snapshots/save_weights/Semi-Inf-Net_UNet/unet_model_200.pkl',
               save_path='./Results/Multi-class lung infection segmentation/class_12/'
               )

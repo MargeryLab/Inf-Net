@@ -54,8 +54,20 @@ def random_list(low, high, number):
 
 
 def binaryMask(im_path):
+    """
+    src：源图片，必须是单通道
+    thresh：阈值，取值范围0～255
+    maxval：填充色，取值范围0～255
+    type：阈值类型，具体见下表
+    阈值	小于阈值的像素点	大于阈值的像素点
+    0	        置0	            置填充色
+    1	        置填充色	        置0
+    2	        保持原色	        置灰色
+    3	        置0	            保持原色
+    4	       保持原色	        置0
+    """
     im = cv2.imread(im_path, cv2.IMREAD_GRAYSCALE)
-    ret, mask_binary = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY)
+    ret, mask_binary = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY) #黑白二值
 
     return mask_binary
 

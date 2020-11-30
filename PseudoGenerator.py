@@ -87,7 +87,7 @@ def trainer(train_loader, model, optimizer, epoch, opt, total_step):
                   format(datetime.now(), epoch, opt.epoch, i, total_step, loss_record1.show(),
                          loss_record2.show(), loss_record3.show(), loss_record4.show(), loss_record5.show()))
     # ---- save model_lung_infection ----
-    save_path = 'Snapshots/{}/'.format(opt.train_save)
+    save_path = 'snapshots/{}/'.format(opt.train_save)
     os.makedirs(save_path, exist_ok=True)
 
     if (epoch+1) % 10 == 0:
@@ -205,9 +205,9 @@ if __name__ == '__main__':
         test_aux_dir = os.path.join(slices_dir, split_name)
         test_aux_save_dir = os.path.join(slices_pred_seg_dir, split_name)
         if i == 0:
-            snapshot_dir = './Snapshots/save_weights/Inf-Net/Inf-Net-100.pth'
+            snapshot_dir = './snapshots/save_weights/Inf-Net/Inf-Net-100.pth'
         else:
-            snapshot_dir = './Snapshots/semi_training/Semi-Inf-Net_{}/Semi-Inf-Net-10.pth'.format(i-1)
+            snapshot_dir = './snapshots/semi_training/Semi-Inf-Net_{}/Semi-Inf-Net-10.pth'.format(i-1)
 
         inference_module(_data_path=test_aux_dir, _save_path=test_aux_save_dir, _pth_path=snapshot_dir)
 

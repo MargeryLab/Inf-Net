@@ -71,7 +71,7 @@ def train(epo_num, num_classes, input_channels, batch_size, lr, save_path):
         os.makedirs('./checkpoints//UNet_Multi-Class-Semi', exist_ok=True)
         if np.mod(epo+1, 10) == 0:
             torch.save(lung_model.state_dict(),
-                       './Snapshots/save_weights/{}/unet_model_{}.pkl'.format(save_path, epo+1))
+                       './snapshots/save_weights/{}/unet_model_{}.pkl'.format(save_path, epo+1))
             print('Saving checkpoints: unet_model_{}.pkl'.format(epo+1))
 
 

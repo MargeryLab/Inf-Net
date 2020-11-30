@@ -90,7 +90,7 @@ class Bottle2neck(nn.Module):
 
         return out
 
-
+# model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth=26, scale=4, **kwargs)
 class Res2Net(nn.Module):
 
     def __init__(self, block, layers, baseWidth=26, scale=4, num_classes=1000):

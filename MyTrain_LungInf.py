@@ -77,7 +77,7 @@ def train(train_loader, model, optimizer, epoch, train_save):
                   format(datetime.now(), epoch, opt.epoch, i, total_step, loss_record1.show(),
                          loss_record2.show(), loss_record3.show(), loss_record4.show(), loss_record5.show()))
     # ---- save model_lung_infection ----
-    save_path = './Snapshots/save_weights/{}/'.format(train_save)
+    save_path = './snapshots/save_weights/{}/'.format(train_save)
     os.makedirs(save_path, exist_ok=True)
 
     if (epoch+1) % 10 == 0:
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                         help='decay rate of learning rate')
     parser.add_argument('--decay_epoch', type=int, default=50,
                         help='every n epochs decay learning rate')
-    parser.add_argument('--is_thop', type=bool, default=False,
+    parser.add_argument('--is_thop', type=bool, default=True,
                         help='whether calculate FLOPs/Params (Thop)')
     parser.add_argument('--gpu_device', type=int, default=0,
                         help='choose which GPU device you want to use')
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     # - See Sec.2.3 of `README.md` to learn how to generate your own img/pseudo-label from scratch.
     if opt.is_semi and opt.backbone == 'Res2Net50':
         print('Loading weights from weights file trained on pseudo label')
-        model.load_state_dict(torch.load('./Snapshots/save_weights/Inf-Net_Pseduo/Inf-Net_pseudo_100.pth'))
+        model.load_state_dict(torch.load('./snapshots/save_weights/Inf-Net_Pseduo/Inf-Net_pseudo_100.pth'))
     else:
         print('Not loading weights from weights file')
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     # ---- calculate FLOPs and Params ----
     if opt.is_thop:
         from Code.utils.utils import CalParams
-        x = torch.randn(1, 3, opt.trainsize, opt.trainsize).cuda()
+        x = torch.randn(1, 3, opt.trainsize, opt.trainsize).cuda()  #返回一个张量，包含了从标准正态分布（均值为0，方差为1，即高斯白噪声）中抽取的一组随机数。torch.randn(*sizes, out=None) → Tensor,张量的形状由参数sizes定义。
         CalParams(model, x)
 
     # ---- load training sub-modules ----
