@@ -235,7 +235,7 @@ class Inf_Net(nn.Module):
 
 if __name__ == '__main__':
     ras = PraNetPlusPlus().cuda()
-    input_tensor = torch.randn(1, 3, 352, 352).cuda()
+    input_tensor = torch.randn(1, 3, 256, 256).cuda()
 
     out = ras(input_tensor)
     print(out[0].shape)

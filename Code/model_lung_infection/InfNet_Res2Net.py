@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from Code.model_lung_infection.backbone.Res2Net import res2net50_v1b_26w_4s
+from PIL import Image
 
 
 class BasicConv2d(nn.Module):
@@ -140,9 +141,10 @@ class Inf_Net(nn.Module):
         self.edge_conv2 = BasicConv2d(64, 64, kernel_size=3, padding=1)
         self.edge_conv3 = BasicConv2d(64, 64, kernel_size=3, padding=1)
         self.edge_conv4 = BasicConv2d(64, n_class, kernel_size=3, padding=1)
+        self.test = BasicConv2d(64, n_class, kernel_size=1, padding=0)
 
     def forward(self, x):   #(24,3,256,256)
-        x = self.resnet.conv1(x)    #(24,64,256,256)
+        x = self.resnet.conv1(x)    #(24,64,128,128)
         x = self.resnet.bn1(x)  #(24,64,128,128)
         x = self.resnet.relu(x) #(24,64,128,128)
 
@@ -160,9 +162,19 @@ class Inf_Net(nn.Module):
 
         # ---- edge guidance ----
         x = self.edge_conv1(x1)     #(24,64,64,64)
+        x_layer1 = self.edge_conv4(x)   #(24,1,64,64）
+        x_layer1 = F.interpolate(x_layer1,
+                                     scale_factor=4,
+                                     mode='bilinear')   #（24,1,256,256）
         x = self.edge_conv2(x)      #(24,64,64,64)
-        edge_guidance = self.edge_conv3(x)  # torch.Size([1, 64, 88, 88])       #(24,64,64,64)
-        lateral_edge = self.edge_conv4(edge_guidance)   # NOTES: Sup-2 (bs, 1, 88, 88) -> (bs, 1, 352, 352)     #(24,1,64,64)
+        x_layer2 = self.edge_conv4(x)   #（24,1,64,64）
+        x_layer2 = F.interpolate(x_layer2, scale_factor=4, mode='bilinear') #（24,1,256,256）
+        edge_guidance = self.edge_conv3(x)   #(24,64,64,64)
+        # x_layer3 = self.edge_conv4(edge_guidance)
+        # x_layer3 = F.interpolate(x_layer3,
+        #                              scale_factor=4,
+        #                              mode='bilinear')
+        lateral_edge = self.edge_conv4(edge_guidance)   # (24,1,64,64)
         lateral_edge = F.interpolate(lateral_edge,      #(24,1,256,256)
                                      scale_factor=4,
                                      mode='bilinear')
@@ -171,7 +183,7 @@ class Inf_Net(nn.Module):
         ra5_feat = self.ParDec(x4_rfb, x3_rfb, x2_rfb)      #(24,1,32,32)
         lateral_map_5 = F.interpolate(ra5_feat,
                                       scale_factor=8,
-                                      mode='bilinear')    # NOTES: Sup-1 (bs, 1, 44, 44) -> (bs, 1, 352, 352)   #(24,1,256,256)
+                                      mode='bilinear')    # (24,1,256,256)
 
         # ---- reverse attention branch_4 ----
         crop_4 = F.interpolate(ra5_feat, scale_factor=0.25, mode='bilinear')    #(24,1,8,8)
@@ -214,7 +226,8 @@ class Inf_Net(nn.Module):
                                       scale_factor=8,
                                       mode='bilinear')   # NOTES: Sup-4 (bs, 1, 44, 44) -> (bs, 1, 352, 352)
 
-        return lateral_map_5, lateral_map_4, lateral_map_3, lateral_map_2, lateral_edge
+        return lateral_map_5, lateral_map_4, lateral_map_3, lateral_map_2, x_layer1,x_layer2,lateral_edge
+        # return lateral_map_5, lateral_map_4, lateral_map_3, lateral_map_2,lateral_edge
 
 
 if __name__ == '__main__':

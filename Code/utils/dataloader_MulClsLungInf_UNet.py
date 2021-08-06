@@ -30,16 +30,16 @@ class LungDataset(Dataset):
         img_name = os.listdir(self.imgs_path)[idx]
         # image path
         imgA = cv2.imread(self.imgs_path + img_name)
-        imgA = cv2.resize(imgA, (352, 352))
+        imgA = cv2.resize(imgA, (256, 256))
 
         # processing pseudo
         imgC = cv2.imread(self.pseudo_path + img_name.split('.')[0] + '.png')
-        imgC = cv2.resize(imgC, (352, 352))
+        imgC = cv2.resize(imgC, (256, 256))
 
         # processing label
         imgB = cv2.imread(self.label_path + img_name.split('.')[0] + '.png', 0)
         if not self.is_test:
-            imgB = cv2.resize(imgB, (352, 352))
+            imgB = cv2.resize(imgB, (256, 256))
         img_label = imgB
         # print(np.unique(img_label))
 

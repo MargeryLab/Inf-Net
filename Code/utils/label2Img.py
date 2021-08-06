@@ -3,6 +3,7 @@ import io
 import scipy.misc
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 import base64
 
 def label_colormap(N=256):

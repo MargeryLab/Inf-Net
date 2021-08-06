@@ -14,6 +14,7 @@ import os
 import argparse
 from datetime import datetime
 from Code.utils.dataloader_LungInf import get_loader
+# from Code.utils.loss_function import DiceLoss
 from Code.utils.utils import clip_gradient, adjust_lr, AvgMeter
 import torch.nn.functional as F
 
@@ -26,6 +27,8 @@ def joint_loss(pred, mask):
     pred = torch.sigmoid(pred)
     inter = ((pred * mask)*weit).sum(dim=(2, 3))
     union = ((pred + mask)*weit).sum(dim=(2, 3))
+    # wiou = 1 - (2.*inter + 1)/(union+1)
+    # dice_loss = DiceLoss(pred, mask)
     wiou = 1 - (inter + 1)/(union - inter+1)
     return (wbce + wiou).mean()
 
@@ -57,7 +60,7 @@ def train(train_loader, model, optimizer, epoch, train_save):
             loss4 = joint_loss(lateral_map_4, gts)
             loss3 = joint_loss(lateral_map_3, gts)
             loss2 = joint_loss(lateral_map_2, gts)
-            loss1 = BCE(lateral_edge, edges)
+            loss1 = joint_loss(lateral_edge, edges)
             loss = loss1 + loss2 + loss3 + loss4 + loss5
             # ---- backward ----
             loss.backward()
@@ -88,19 +91,19 @@ def train(train_loader, model, optimizer, epoch, train_save):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # hyper-parameters
-    parser.add_argument('--epoch', type=int, default=100,
+    parser.add_argument('--epoch', type=int, default=70,
                         help='epoch number')
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='learning rate')
-    parser.add_argument('--batchsize', type=int, default=24,
+    parser.add_argument('--batchsize', type=int, default=16,
                         help='training batch size')
-    parser.add_argument('--trainsize', type=int, default=352,
+    parser.add_argument('--trainsize', type=int, default=256,
                         help='set the size of training sample')
     parser.add_argument('--clip', type=float, default=0.5,
                         help='gradient clipping margin')
-    parser.add_argument('--decay_rate', type=float, default=0.1,
+    parser.add_argument('--decay_rate', type=float, default=0.5,
                         help='decay rate of learning rate')
-    parser.add_argument('--decay_epoch', type=int, default=50,
+    parser.add_argument('--decay_epoch', type=int, default=25,
                         help='every n epochs decay learning rate')
     parser.add_argument('--is_thop', type=bool, default=True,
                         help='whether calculate FLOPs/Params (Thop)')
@@ -142,6 +145,7 @@ if __name__ == '__main__':
     else:
         raise ValueError('Invalid backbone parameters: {}'.format(opt.backbone))
     model = Inf_Net(channel=opt.net_channel, n_class=opt.n_classes).cuda()
+    # model.load_state_dict(torch.load('./snapshots/save_weights/Inf-Net/Inf-Net-60.pth'),False)
 
     # ---- load pre-trained weights (mode=Semi-Inf-Net) ----
     # - See Sec.2.3 of `README.md` to learn how to generate your own img/pseudo-label from scratch.
@@ -189,6 +193,6 @@ if __name__ == '__main__':
                   "And any questions feel free to contact me "
                   "via E-mail (gepengai.ji@163.com)\n----\n".format(opt.backbone, opt), "#"*20)
 
-    for epoch in range(1, opt.epoch):
+    for epoch in range(61, opt.epoch):
         adjust_lr(optimizer, opt.lr, epoch, opt.decay_rate, opt.decay_epoch)
         train(train_loader, model, optimizer, epoch, train_save)

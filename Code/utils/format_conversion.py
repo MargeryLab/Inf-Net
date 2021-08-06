@@ -5,6 +5,7 @@ from scipy import misc
 import random
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 # def tif2png(_src_path, _dst_path):
@@ -38,14 +39,32 @@ def binary2edge(mask_path):
             https://www.cnblogs.com/FHC1994/p/9125570.html
     func2: Canny(image, threshold1, threshold2[, edges[, apertureSize[, L2gradient]]]) -> edges
 
+    # 形态学：边缘检测
+    _,Thr_img = cv2.threshold(original_img,210,255,cv2.THRESH_BINARY)#设定红色通道阈值210（阈值影响梯度运算效果）
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))         #定义矩形结构元素
+    gradient = cv2.morphologyEx(Thr_img, cv2.MORPH_GRADIENT, kernel) #梯度
+
     :param mask_path:
     :return:
     """
     mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-    ret, mask_binary = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY)  # if <0, pixel=0 else >0, pixel=255
-    mask_edge = cv2.Canny(mask_binary, 10, 150)
+    ret, t_mask_binary = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY)  # if <0, pixel=0 else >0, pixel=255
+    wall_edge = cv2.Canny(t_mask_binary, 10, 150)
+    mask[mask == 255] = 0
+    mask[mask == 127] = 255
+    ret, w_mask_binary = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY)
+    # mask_binary = cv2.GaussianBlur(mask_binary, (3, 3), 0)
+    tumor_edge = cv2.Canny(w_mask_binary, 10, 150)
 
-    return mask_edge
+    # #subplot（numbRow ， numbCol ，plotNum ） or  subplot(numbRow numbCol plotNum)
+    # # numbRow是plot图的行数；numbCol是plot图的列数；plotNum是指第几行第几列的第几幅图 ；
+    # plt.subplot(121), plt.imshow(mask, cmap='gray')
+    # plt.title('Original Image'), plt.xticks([]), plt.yticks([])
+    # plt.subplot(122), plt.imshow(mask_edge, cmap='gray')
+    # plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
+    # plt.show()
+
+    return wall_edge, tumor_edge
 
 
 def random_list(low, high, number):
